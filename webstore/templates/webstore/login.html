@@ -1,12 +1,17 @@
-<html>
-    <head></head>
-    <body>
-        <form method="POST">
-            <label for="username">Username:</label><br>
-            <input type="text" id="username" name="username"><br>
-            <label for="password">Password:</label><br>
-            <input type="password" id="password" name="password"><br>
-            <input type="submit" value="Submit">
-        </form>
-    </body>
-</html>
+{% extends "webstore/layout.html" %}
+{% block title %}
+    Login
+{% endblock %}
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    <label for="username">Username:</label><br>
+    <input type="text" id="username" name="username"><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password"><br>
+    <input type="submit" value="Submit">
+</form>
+{% if attempted %}
+    <p>Username and password are incorrect!</p>
+{% endif %}
+{% endblock %}
