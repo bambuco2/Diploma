@@ -19,13 +19,15 @@ def home(request):
     return render(request, "webstore/home.html")
 
 def login(request):
+    global loggedUser
+    if loggedUser is not None:
+        return redirect("home")
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         if username and password:
             user = (User.objects.filter(userName = username, password = password))
             if user:
-                global loggedUser
                 loggedUser = LoggedUser(user[0].userID, user[0].userName, user[0].password, user[0].name, user[0].surname)
                 return redirect("home")
         return render(request, "webstore/login.html")
@@ -33,4 +35,6 @@ def login(request):
         return render(request, "webstore/login.html")
 
 def logout(request):
+    global loggedUser
+    loggedUser = None
     return render(request, "webstore/login.html")
