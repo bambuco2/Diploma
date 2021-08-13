@@ -3,4 +3,16 @@
     Home
 {% endblock %}
 {% block content %}
+<div class="dropdown">
+  <button class="dropbtn">Dropdown</button>
+  <div class="dropdown-content">
+    {% if category is not null %}
+      {% for cat in category %}
+        <a href={{cat.urlName}}>{{cat.name}}</a>
+      {% endfor %}
+    {% else %}
+      <div> null</div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

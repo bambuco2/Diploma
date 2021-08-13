@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from webstore.models import User
+from webstore.models import Category
 
 # Create your views here.
 loggedUser = None
@@ -13,10 +14,12 @@ class LoggedUser:
         self.surname = surname
         self.logged = True
 
+categories_dict = {"category" : Category.objects.filter()}
+
 def home(request):
     if(loggedUser is not None and loggedUser.logged):
-        return render(request, "webstore/homeLogged.html")
-    return render(request, "webstore/home.html")
+        return render(request, "webstore/homeLogged.html", categories_dict)
+    return render(request, "webstore/home.html", categories_dict)
 
 def login(request):
     global loggedUser
@@ -38,3 +41,9 @@ def logout(request):
     global loggedUser
     loggedUser = None
     return render(request, "webstore/login.html")
+
+def products(request):
+    global loggedUser
+    if loggedUser is not None:
+        return render(request, "webstore/productsLogged.html")
+    return render(request, "webstore/products.html")
