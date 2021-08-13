@@ -44,6 +44,14 @@ def logout(request):
 
 def products(request):
     global loggedUser
-    if loggedUser is not None:
-        return render(request, "webstore/productsLogged.html")
-    return render(request, "webstore/products.html")
+    if(request.path == "/household-appliances/"):
+        return render(request, "webstore/categories/household-appliances.html")
+    elif(request.path == "/fashion/"):
+        return render(request, "webstore/categories/fashion.html")
+    elif(request.path == "/fitness/"):
+        return render(request, "webstore/categories/fitness.html")
+    elif(request.path == "/yard-tools/"):
+        return render(request, "webstore/categories/yard-tools.html")
+    elif(request.path == "/audio-video/"):
+        return render(request, "webstore/categories/audio-video.html")
+    return render(request, "webstore/categories/products.html")
