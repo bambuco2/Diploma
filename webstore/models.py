@@ -16,7 +16,17 @@ class Category(models.Model):
     categoryID = models.BigAutoField(primary_key=True, unique=True)
 
     name = models.CharField(max_length=300)
+    urlName = models.CharField(max_length=300, default="defaultValue")
     description = models.TextField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class SubCategory(models.Model):
+    subCategoryID = models.BigAutoField(primary_key=True, unique=True)
+    categoryID = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=300)
+    urlName = models.CharField(max_length=300, default="defaultValue")
 
     def __str__(self) -> str:
         return super().__str__()
