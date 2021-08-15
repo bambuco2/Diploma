@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import User
-from webstore.models import Category
+from webstore.models import SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -15,6 +14,14 @@ class LoggedUser:
         self.logged = True
 
 categories_dict = {"category" : Category.objects.filter()}
+subCategories_dict = {}
+for category in Category.objects.filter():
+    name = category.urlName.split("-")
+    subCategories_dict[name[0]] = []
+for subCategory in SubCategory.objects.filter():
+    cat = (Category.objects.filter(categoryID = subCategory.categoryID_id))
+    name = cat[0].urlName.split("-")
+    subCategories_dict[name[0]].append(subCategory)
 
 def home(request):
     if(loggedUser is not None and loggedUser.logged):
@@ -45,13 +52,13 @@ def logout(request):
 def products(request):
     global loggedUser
     if(request.path == "/household-appliances/"):
-        return render(request, "webstore/categories/household-appliances.html")
+        return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
     elif(request.path == "/fashion/"):
-        return render(request, "webstore/categories/fashion.html")
+        return render(request, "webstore/categories/fashion.html", subCategories_dict)
     elif(request.path == "/fitness/"):
-        return render(request, "webstore/categories/fitness.html")
+        return render(request, "webstore/categories/fitness.html", subCategories_dict)
     elif(request.path == "/yard-tools/"):
-        return render(request, "webstore/categories/yard-tools.html")
+        return render(request, "webstore/categories/yard-tools.html", subCategories_dict)
     elif(request.path == "/audio-video/"):
-        return render(request, "webstore/categories/audio-video.html")
-    return render(request, "webstore/categories/products.html")
+        return render(request, "webstore/categories/audio-video.html", subCategories_dict)
+    return render(request, "webstore/categories/products.html", subCategories_dict)
