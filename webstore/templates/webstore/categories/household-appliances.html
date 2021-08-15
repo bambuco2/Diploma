@@ -4,4 +4,7 @@
 {% endblock %}
 {% block content %}
 <div>All the subcategories in this selected category</div>
+{% for subCategory in household %}
+    <div><a href={{subCategory.urlName}}>{{subCategory.name}}</a></div>
+{% endfor %}
 {% endblock %}
