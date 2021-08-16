@@ -1,6 +1,6 @@
 {% extends "webstore/layout.html" %}
 {% block title %}
-    Yard/tools
+    Household appliances
 {% endblock %}
 {% block navigation %}
 {% if logged %}
@@ -10,9 +10,6 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-<div>All the subcategories in this selected category</div>
-{% for subCategory in yard %}
-    <div><a href=?subcategory={{subCategory.urlName}}>{{subCategory.name}}</a></div>
-{% endfor %}
+<div>All the products in this selected category</div>
 {% include "webstore/footer.html" %}
 {% endblock %}
