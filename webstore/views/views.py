@@ -14,7 +14,9 @@ class LoggedUser:
         self.logged = True
 
 categories_dict = {"category" : Category.objects.filter()}
+categories_dict["logged"] = False
 subCategories_dict = {}
+subCategories_dict["logged"] = False
 for category in Category.objects.filter():
     name = category.urlName.split("-")
     subCategories_dict[name[0]] = []
@@ -30,6 +32,8 @@ def home(request):
 
 def login(request):
     global loggedUser
+    global categories_dict
+    global subCategories_dict
     if loggedUser is not None:
         return redirect("home")
     if request.method == "POST":
@@ -39,6 +43,8 @@ def login(request):
             user = (User.objects.filter(userName = username, password = password))
             if user:
                 loggedUser = LoggedUser(user[0].userID, user[0].userName, user[0].password, user[0].name, user[0].surname)
+                categories_dict["logged"] = True
+                subCategories_dict["logged"] = True
                 return redirect("home")
         return render(request, "webstore/login.html")
     else:
@@ -46,11 +52,14 @@ def login(request):
 
 def logout(request):
     global loggedUser
+    global categories_dict
+    global subCategories_dict
     loggedUser = None
+    categories_dict["logged"] = False
+    subCategories_dict["logged"] = False
     return render(request, "webstore/login.html")
 
 def products(request):
-    global loggedUser
     if(request.path == "/household-appliances/"):
         return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
     elif(request.path == "/fashion/"):

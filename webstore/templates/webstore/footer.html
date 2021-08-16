@@ -2,20 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>{% block title %}{% endblock %}</title>
+    <title>footer</title>
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'site.css' %}"/>
 </head>
 
 <body>
-<div class="navbar">
-    {% block navigation %}
-    {% endblock %}
-</div>
 
 <div class="body-content">
-    {% block content %}
-    {% endblock %}
+    <hr/>
+    <footer>
+        <p>© 2021</p>
+    </footer>
 </div>
 </body>
 </html>

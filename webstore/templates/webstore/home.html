@@ -2,6 +2,9 @@
 {% block title %}
     Home
 {% endblock %}
+{% block navigation %}
+{% include "webstore/header.html" %}
+{% endblock %}
 {% block content %}
 <div class="dropdown">
     <button class="dropbtn">Dropdown</button>
@@ -15,4 +18,5 @@
       {% endif %}
     </div>
   </div>
+{% include "webstore/footer.html" %}
 {% endblock %}
