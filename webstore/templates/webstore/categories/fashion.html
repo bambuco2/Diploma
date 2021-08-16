@@ -12,7 +12,7 @@
 {% block content %}
 <div>All the subcategories in this selected category</div>
 {% for subCategory in fashion %}
-    <div><a href={{subCategory.urlName}}>{{subCategory.name}}</a></div>
+    <div><a href=?subcategory={{subCategory.urlName}}>{{subCategory.name}}</a></div>
 {% endfor %}
 {% include "webstore/footer.html" %}
 {% endblock %}

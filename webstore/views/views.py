@@ -60,14 +60,17 @@ def logout(request):
     return render(request, "webstore/login.html")
 
 def products(request):
-    if(request.path == "/household-appliances/"):
-        return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
-    elif(request.path == "/fashion/"):
-        return render(request, "webstore/categories/fashion.html", subCategories_dict)
-    elif(request.path == "/fitness/"):
-        return render(request, "webstore/categories/fitness.html", subCategories_dict)
-    elif(request.path == "/yard-tools/"):
-        return render(request, "webstore/categories/yard-tools.html", subCategories_dict)
-    elif(request.path == "/audio-video/"):
-        return render(request, "webstore/categories/audio-video.html", subCategories_dict)
-    return render(request, "webstore/categories/products.html", subCategories_dict)
+    if("subcategory" in request.GET.keys()):
+        return render(request, "webstore/subcategory.html", subCategories_dict)
+    else:
+        if(request.path == "/household-appliances/"):
+            return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
+        elif(request.path == "/fashion/"):
+            return render(request, "webstore/categories/fashion.html", subCategories_dict)
+        elif(request.path == "/fitness/"):
+            return render(request, "webstore/categories/fitness.html", subCategories_dict)
+        elif(request.path == "/yard-tools/"):
+            return render(request, "webstore/categories/yard-tools.html", subCategories_dict)
+        elif(request.path == "/audio-video/"):
+            return render(request, "webstore/categories/audio-video.html", subCategories_dict)
+        return render(request, "webstore/categories/products.html", subCategories_dict)
