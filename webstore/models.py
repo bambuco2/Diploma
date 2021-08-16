@@ -8,6 +8,7 @@ class Product(models.Model):
     name = models.CharField(max_length=300)
     description = models.TextField()
     price = models.FloatField()
+    rank = models.FloatField(default=5)
 
     def __str__(self) -> str:
         return super().__str__()
