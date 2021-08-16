@@ -2,6 +2,9 @@
 {% block title %}
     Login
 {% endblock %}
+{% block navigation %}
+{% include "webstore/header.html" %}
+{% endblock %}
 {% block content %}
 <form method="POST">
     {% csrf_token %}
@@ -14,4 +17,5 @@
 {% if attempted %}
     <p>Username and password are incorrect!</p>
 {% endif %}
+{% include "webstore/footer.html" %}
 {% endblock %}

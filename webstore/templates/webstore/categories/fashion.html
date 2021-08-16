@@ -2,9 +2,17 @@
 {% block title %}
     Fashion
 {% endblock %}
+{% block navigation %}
+{% if logged %}
+    {% include "webstore/headerLogged.html" %}
+{% else %}
+    {% include "webstore/header.html" %}
+{% endif %}
+{% endblock %}
 {% block content %}
 <div>All the subcategories in this selected category</div>
 {% for subCategory in fashion %}
     <div><a href={{subCategory.urlName}}>{{subCategory.name}}</a></div>
 {% endfor %}
+{% include "webstore/footer.html" %}
 {% endblock %}
