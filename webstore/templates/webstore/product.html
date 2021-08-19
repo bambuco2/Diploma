@@ -1,6 +1,6 @@
 {% extends "webstore/layout.html" %}
 {% block title %}
-    Household appliances
+    Product
 {% endblock %}
 {% block navigation %}
 {% if logged %}
@@ -10,9 +10,13 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-<div>All the products in this selected category</div>
-{% for prod in product %}
-<div><a href=?product={{prod.productID}}>{{prod.name}}</a></div>
-{% endfor %}
+{% if product is not None %}
+    <div>{{product.name}}</div>
+    <div>{{product.description}}</div>
+    <div>{{product.price}}</div>
+    <div>{{product.rank}}</div>
+{% else %}
+    <div>All the information for this specific product</div>
+{% endif %}
 {% include "webstore/footer.html" %}
 {% endblock %}

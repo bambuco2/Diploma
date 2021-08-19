@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import SubCategory, User, Category
+from webstore.models import Product, SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -17,6 +17,9 @@ categories_dict = {"category" : Category.objects.filter()}
 categories_dict["logged"] = False
 subCategories_dict = {}
 subCategories_dict["logged"] = False
+products_dict = {}
+product_dict = {}
+
 for category in Category.objects.filter():
     name = category.urlName.split("-")
     subCategories_dict[name[0]] = []
@@ -61,7 +64,11 @@ def logout(request):
 
 def products(request):
     if("subcategory" in request.GET.keys()):
-        return render(request, "webstore/subcategory.html", subCategories_dict)
+        fillProducts()
+        return render(request, "webstore/subcategory.html", products_dict)
+    elif("product" in request.GET.keys()):
+        fillProduct(request.GET["product"])
+        return render(request, "webstore/product.html", product_dict)
     else:
         if(request.path == "/household-appliances/"):
             return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
@@ -74,3 +81,17 @@ def products(request):
         elif(request.path == "/audio-video/"):
             return render(request, "webstore/categories/audio-video.html", subCategories_dict)
         return render(request, "webstore/categories/products.html", subCategories_dict)
+
+def fillProducts():
+    global products_dict
+    products_dict["product"] = []
+    for product in Product.objects.filter():
+        products_dict["product"].append(product)
+
+def fillProduct(productID):
+    global product_dict
+    product = Product.objects.filter(productID = productID)
+    if(product):
+        product_dict["product"] = product[0]
+    else:
+        product_dict["product"] = None
