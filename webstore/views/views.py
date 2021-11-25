@@ -19,6 +19,7 @@ subCategories_dict = {}
 subCategories_dict["logged"] = False
 products_dict = {}
 product_dict = {}
+login_dict = {}
 
 for category in Category.objects.filter():
     name = category.urlName.split("-")
@@ -37,6 +38,9 @@ def login(request):
     global loggedUser
     global categories_dict
     global subCategories_dict
+    global products_dict
+    global product_dict
+    global login_dict
     if loggedUser is not None:
         return redirect("home")
     if request.method == "POST":
@@ -48,18 +52,31 @@ def login(request):
                 loggedUser = LoggedUser(user[0].userID, user[0].userName, user[0].password, user[0].name, user[0].surname)
                 categories_dict["logged"] = True
                 subCategories_dict["logged"] = True
+                products_dict["logged"] = True
+                product_dict["logged"] = True
+                login_dict["attempted"] = False
                 return redirect("home")
-        return render(request, "webstore/login.html")
+            else:
+                login_dict["attempted"] = True
+        else:
+                login_dict["attempted"] = True
+        return render(request, "webstore/login.html", login_dict)
     else:
-        return render(request, "webstore/login.html")
+        return render(request, "webstore/login.html", login_dict)
 
 def logout(request):
     global loggedUser
     global categories_dict
     global subCategories_dict
+    global products_dict
+    global product_dict
+    global login_dict
     loggedUser = None
     categories_dict["logged"] = False
     subCategories_dict["logged"] = False
+    products_dict["logged"] = False
+    product_dict["logged"] = False
+    login_dict["attempted"] = False
     return render(request, "webstore/login.html")
 
 def products(request):
