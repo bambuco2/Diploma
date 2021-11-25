@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import Product, SubCategory, User, Category
+from webstore.models import Product, ProductInCategory, SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -13,6 +13,7 @@ class LoggedUser:
         self.surname = surname
         self.logged = True
 
+#Prepare all dictionaries
 categories_dict = {"category" : Category.objects.filter()}
 categories_dict["logged"] = False
 subCategories_dict = {}
@@ -21,6 +22,7 @@ products_dict = {}
 product_dict = {}
 login_dict = {}
 
+#Create subcategory dictionary with category and subcategory info
 for category in Category.objects.filter():
     name = category.urlName.split("-")
     subCategories_dict[name[0]] = []
@@ -29,11 +31,13 @@ for subCategory in SubCategory.objects.filter():
     name = cat[0].urlName.split("-")
     subCategories_dict[name[0]].append(subCategory)
 
+#Renders Home.html based on whether user is in session or not
 def home(request):
     if(loggedUser is not None and loggedUser.logged):
         return render(request, "webstore/homeLogged.html", categories_dict)
     return render(request, "webstore/home.html", categories_dict)
 
+#Cheks username and password, starts user session, renders Home.html
 def login(request):
     global loggedUser
     global categories_dict
@@ -64,6 +68,7 @@ def login(request):
     else:
         return render(request, "webstore/login.html", login_dict)
 
+#End user session, resets all dictionaries and renders Login.html
 def logout(request):
     global loggedUser
     global categories_dict
@@ -79,9 +84,10 @@ def logout(request):
     login_dict["attempted"] = False
     return render(request, "webstore/login.html")
 
+#Finds a specific URL based on selected category, subcategory or product and renders HTML
 def products(request):
     if("subcategory" in request.GET.keys()):
-        fillProducts()
+        fillProducts(request)
         return render(request, "webstore/subcategory.html", products_dict)
     elif("product" in request.GET.keys()):
         fillProduct(request.GET["product"])
@@ -99,12 +105,22 @@ def products(request):
             return render(request, "webstore/categories/audio-video.html", subCategories_dict)
         return render(request, "webstore/categories/products.html", subCategories_dict)
 
-def fillProducts():
+#Fills products_dict with all products belonging in a specific subcategory
+def fillProducts(request):
     global products_dict
     products_dict["product"] = []
-    for product in Product.objects.filter():
-        products_dict["product"].append(product)
+    subcategoryID = None
+    for subcategory in SubCategory.objects.filter():
+        if(subcategory.urlName == request.GET['subcategory']):
+            subcategoryID = subcategory.subCategoryID
+            break
+    if(subcategoryID is None):
+        raise Exception("subcategory not found!")
+    for productInCategory in ProductInCategory.objects.filter():
+        if(productInCategory.subCategoryID_id == subcategoryID):
+            products_dict["product"].append(Product.objects.filter(productID = productInCategory.productID_id)[0])
 
+#Fills product_dict with a specific product
 def fillProduct(productID):
     global product_dict
     product = Product.objects.filter(productID = productID)

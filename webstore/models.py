@@ -35,7 +35,8 @@ class SubCategory(models.Model):
 class ProductInCategory(models.Model):
     productID = models.ForeignKey(Product, on_delete=models.CASCADE)
     categoryID = models.ForeignKey(Category, on_delete=models.CASCADE)
-    UniqueConstraint(fields=[productID, categoryID], name='unique_entry')
+    subCategoryID = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    UniqueConstraint(fields=[productID, categoryID, subCategoryID], name='unique_entry')
 
     def __str__(self) -> str:
         return super().__str__()
