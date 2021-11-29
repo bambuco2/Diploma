@@ -12,7 +12,8 @@
 {% block content %}
 <div>All the products in this selected category</div>
 {% for prod in product %}
-<div><a href=?product={{prod.productID}}>{{prod.name}}</a></div>
+<div><a href=?product={{prod.productID}}><img src=/static/images/{{prod.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=150 height=150> {{prod.price}}€</div>
+<div>{{prod.name}}</a></div>
 {% endfor %}
 {% include "webstore/footer.html" %}
 {% endblock %}
