@@ -11,9 +11,16 @@
 {% endblock %}
 {% block content %}
 <div>All the products in this selected category</div>
+<div style="overflow: hidden;">
 {% for prod in product %}
-<div><a href=?product={{prod.productID}}><img src=/static/images/{{prod.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=150 height=150> {{prod.price}}€</div>
-<div>{{prod.name}}</a></div>
+    <div style="overflow: hidden;">
+        <div style="float: left; width: 20%; margin-right: 1%;"><a href=?product={{prod.productID}}><img src=/static/images/{{prod.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=150 height=150><br> {{prod.name}}</a></div>
+        <div>{{prod.price}}€</div>
+        <div><button>Add to cart</button></div>
+        <div></div>
+    </div>
+    <br>
 {% endfor %}
+</div>
 {% include "webstore/footer.html" %}
 {% endblock %}
