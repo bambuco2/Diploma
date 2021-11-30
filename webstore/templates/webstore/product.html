@@ -12,6 +12,7 @@
 {% block content %}
 {% if product is not None %}
     <div>{{product.name}}</div>
+    <div><img src=/static/images/{{product.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=400 height=400></div>
     <div>{{product.description}}</div>
     <div>{{product.price}}€</div>
     <div>{{product.rank}}</div>
