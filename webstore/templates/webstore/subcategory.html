@@ -16,7 +16,9 @@
     <div style="overflow: hidden;">
         <div style="float: left; width: 20%; margin-right: 1%;"><a href=?product={{prod.productID}}><img src=/static/images/{{prod.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=150 height=150><br> {{prod.name}}</a></div>
         <div>{{prod.price}}€</div>
+        {% if logged %}
         <div><button>Add to cart</button></div>
+        {% endif %}
         <div></div>
     </div>
     <br>

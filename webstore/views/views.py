@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import Product, ProductInCategory, SubCategory, User, Category
+from webstore.models import Product, ProductInCart, ProductInCategory, SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -128,3 +128,12 @@ def fillProduct(productID):
         product_dict["product"] = product[0]
     else:
         product_dict["product"] = None
+
+#Adds specific product to users cart
+def cart(request):
+    if(loggedUser is not None and request.POST["productID"] is not None):
+        product = ProductInCart(quantity="1", cartID_id=loggedUser.userID, productID_id=request.POST["productID"])
+        product.save()
+    else:
+        raise Exception("User and product not found!")
+    return redirect("home")

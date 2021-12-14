@@ -21,7 +21,15 @@
             <div>{{product.price}}€</div>
             <div>{{product.rank}}</div>
             <br>
-            <div><button>Add to cart</button></div>
+            {% if logged %}
+            <div>
+                <form method="POST" action="/cart/">
+                {% csrf_token %}
+                    <input type="hidden" id="productID" name="productID" value={{product.productID}}>
+                    <input type="submit" value="Add to cart">
+                </form>
+            </div>
+            {% endif %}
         </div>
     </div>
 {% else %}
