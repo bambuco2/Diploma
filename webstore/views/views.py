@@ -19,6 +19,7 @@ categories_dict["logged"] = False
 subCategories_dict = {}
 subCategories_dict["logged"] = False
 products_dict = {}
+productsInCart_dict = {}
 product_dict = {}
 login_dict = {}
 
@@ -45,6 +46,7 @@ def login(request):
     global products_dict
     global product_dict
     global login_dict
+    global productsInCart_dict
     if loggedUser is not None:
         return redirect("home")
     if request.method == "POST":
@@ -58,6 +60,7 @@ def login(request):
                 subCategories_dict["logged"] = True
                 products_dict["logged"] = True
                 product_dict["logged"] = True
+                productsInCart_dict["logged"] = True
                 login_dict["attempted"] = False
                 return redirect("home")
             else:
@@ -76,12 +79,14 @@ def logout(request):
     global products_dict
     global product_dict
     global login_dict
+    global productsInCart_dict
     loggedUser = None
     categories_dict["logged"] = False
     subCategories_dict["logged"] = False
     products_dict["logged"] = False
     product_dict["logged"] = False
     login_dict["attempted"] = False
+    productsInCart_dict["logged"] = False
     return render(request, "webstore/login.html")
 
 #Finds a specific URL based on selected category, subcategory or product and renders HTML
@@ -129,11 +134,17 @@ def fillProduct(productID):
     else:
         product_dict["product"] = None
 
-#Adds specific product to users cart
+#Handles showing cart.html and adding specific product to users cart
 def cart(request):
-    if(loggedUser is not None and request.POST["productID"] is not None):
-        product = ProductInCart(quantity="1", cartID_id=loggedUser.userID, productID_id=request.POST["productID"])
-        product.save()
-    else:
-        raise Exception("User and product not found!")
-    return redirect("home")
+    if request.method == "POST":
+        if(loggedUser is not None and request.POST["productID"] is not None):
+            product = ProductInCart(quantity="1", cartID_id=loggedUser.userID, productID_id=request.POST["productID"])
+            product.save()
+        else:
+            raise Exception("User and product not found!")
+    elif(loggedUser is not None):
+        productsInCart_dict["product"] = []
+        for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
+            productsInCart_dict["product"].append(productInCart)
+
+    return render(request, "webstore/cart.html", productsInCart_dict)

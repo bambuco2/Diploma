@@ -1,0 +1,24 @@
+{% extends "webstore/layout.html" %}
+{% block title %}
+    Cart
+{% endblock %}
+{% block navigation %}
+{% if logged %}
+    {% include "webstore/headerLogged.html" %}
+{% else %}
+    {% include "webstore/header.html" %}
+{% endif %}
+{% endblock %}
+{% block content %}
+<div>All the products in cart</div>
+<div style="overflow: hidden;">
+{% for prod in product %}
+    <div style="overflow: hidden;">
+        <div style="float: left; width: 20%; margin-right: 1%;"><a href=?product={{prod.productID_id}}><img src=/static/images/{{prod.productID_id}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=150 height=150><br> {{prod.productID_id}}</a></div>
+        <div></div>
+    </div>
+    <br>
+{% endfor %}
+</div>
+{% include "webstore/footer.html" %}
+{% endblock %}
