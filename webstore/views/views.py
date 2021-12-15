@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import Product, ProductInCategory, SubCategory, User, Category
+from webstore.models import Product, ProductInCart, ProductInCategory, SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -19,6 +19,7 @@ categories_dict["logged"] = False
 subCategories_dict = {}
 subCategories_dict["logged"] = False
 products_dict = {}
+productsInCart_dict = {}
 product_dict = {}
 login_dict = {}
 
@@ -45,6 +46,7 @@ def login(request):
     global products_dict
     global product_dict
     global login_dict
+    global productsInCart_dict
     if loggedUser is not None:
         return redirect("home")
     if request.method == "POST":
@@ -58,6 +60,7 @@ def login(request):
                 subCategories_dict["logged"] = True
                 products_dict["logged"] = True
                 product_dict["logged"] = True
+                productsInCart_dict["logged"] = True
                 login_dict["attempted"] = False
                 return redirect("home")
             else:
@@ -76,12 +79,14 @@ def logout(request):
     global products_dict
     global product_dict
     global login_dict
+    global productsInCart_dict
     loggedUser = None
     categories_dict["logged"] = False
     subCategories_dict["logged"] = False
     products_dict["logged"] = False
     product_dict["logged"] = False
     login_dict["attempted"] = False
+    productsInCart_dict["logged"] = False
     return render(request, "webstore/login.html")
 
 #Finds a specific URL based on selected category, subcategory or product and renders HTML
@@ -128,3 +133,59 @@ def fillProduct(productID):
         product_dict["product"] = product[0]
     else:
         product_dict["product"] = None
+
+#Handles showing cart.html and adding/removing specific product to users cart
+def cart(request):
+    global productsInCart_dict
+    if(loggedUser is not None):
+        #User adds or remove from shopping cart
+        if request.method == "POST":
+            if(loggedUser is not None and request.POST["productID"] is not None):
+                if("Remove" in request.POST):
+                    removeProductFromCart(loggedUser.userID, request.POST["productID"])
+                else:
+                    addProductToCart(loggedUser.userID, request.POST["productID"])
+            else:
+                raise Exception("User and product not found!")
+        #User wants to see shopping cart, load products
+        else:
+            productsInCart_dict["product"] = []
+            for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
+                productsInCart_dict["product"].append(productInCart)
+        fillCart()
+        return render(request, "webstore/cart.html", productsInCart_dict)
+    else:
+        return render(request, "webstore/login.html")
+
+#Checks if product is already in a users cart
+def isProductInCart(userID, productID):
+    if(ProductInCart.objects.filter(cartID_id = userID, productID_id = productID).exists()):
+        return True
+    return False
+
+#Fills productsInCart_dict with products in a users cart
+def fillCart():
+    global productsInCart_dict
+    productsInCart_dict["product"] = []
+    for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
+        productsInCart_dict["product"].append(productInCart)
+    return True
+
+#Removes product from shopping cart
+def removeProductFromCart(userID, productID):
+    product = ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)
+    if(product.exists()):
+        product[0].delete()
+        return True    
+    return False
+
+#Adds product to shopping cart if already exists increase quantity
+def addProductToCart(userID, productID):
+    if(not isProductInCart(userID, productID)):
+        product = ProductInCart(quantity="1", cartID_id=userID, productID_id=productID)
+        product.save()
+    #Product already in shopping cart, increase quantity
+    else:
+        product = ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)
+        product.update(quantity=product[0].quantity+1)
+    return True
