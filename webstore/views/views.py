@@ -134,29 +134,32 @@ def fillProduct(productID):
     else:
         product_dict["product"] = None
 
-#Handles showing cart.html and adding specific product to users cart
+#Handles showing cart.html and adding/removing specific product to users cart
 def cart(request):
     global productsInCart_dict
-    if request.method == "POST":
-        if(loggedUser is not None and request.POST["productID"] is not None):
-            if(not isProductInCart(loggedUser.userID, request.POST["productID"])):
-                product = ProductInCart(quantity="1", cartID_id=loggedUser.userID, productID_id=request.POST["productID"])
-                product.save()
+    if(loggedUser is not None):
+        #User adds or remove from shopping cart
+        if request.method == "POST":
+            if(loggedUser is not None and request.POST["productID"] is not None):
+                if("Remove" in request.POST):
+                    removeProductFromCart(loggedUser.userID, request.POST["productID"])
+                else:
+                    addProductToCart(loggedUser.userID, request.POST["productID"])
             else:
-                qnty = ProductInCart.objects.filter(cartID_id = loggedUser.userID, productID_id = request.POST["productID"])[0].quantity
-                ProductInCart.objects.filter(cartID_id = loggedUser.userID, productID_id = request.POST["productID"]).update(quantity=qnty+1)
+                raise Exception("User and product not found!")
+        #User wants to see shopping cart, load products
         else:
-            raise Exception("User and product not found!")
-    elif(loggedUser is not None):
-        productsInCart_dict["product"] = []
-        for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
-            productsInCart_dict["product"].append(productInCart)
-    fillCart()
-    return render(request, "webstore/cart.html", productsInCart_dict)
+            productsInCart_dict["product"] = []
+            for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
+                productsInCart_dict["product"].append(productInCart)
+        fillCart()
+        return render(request, "webstore/cart.html", productsInCart_dict)
+    else:
+        return render(request, "webstore/login.html")
 
 #Checks if product is already in a users cart
 def isProductInCart(userID, productID):
-    if(ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)[0] is not None):
+    if(ProductInCart.objects.filter(cartID_id = userID, productID_id = productID).exists()):
         return True
     return False
 
@@ -166,4 +169,23 @@ def fillCart():
     productsInCart_dict["product"] = []
     for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
         productsInCart_dict["product"].append(productInCart)
-    return
+    return True
+
+#Removes product from shopping cart
+def removeProductFromCart(userID, productID):
+    product = ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)
+    if(product.exists()):
+        product[0].delete()
+        return True    
+    return False
+
+#Adds product to shopping cart if already exists increase quantity
+def addProductToCart(userID, productID):
+    if(not isProductInCart(userID, productID)):
+        product = ProductInCart(quantity="1", cartID_id=userID, productID_id=productID)
+        product.save()
+    #Product already in shopping cart, increase quantity
+    else:
+        product = ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)
+        product.update(quantity=product[0].quantity+1)
+    return True
