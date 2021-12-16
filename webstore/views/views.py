@@ -49,9 +49,9 @@ def login(request):
     global productsInCart_dict
     if loggedUser is not None:
         return redirect("home")
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
+    if request.method == "POST" and "username" in request.POST and "password" in request.POST:
+        username = request.POST["username"]
+        password = request.POST["password"]
         if username and password:
             user = (User.objects.filter(userName = username, password = password))
             if user:
@@ -87,7 +87,7 @@ def logout(request):
     product_dict["logged"] = False
     login_dict["attempted"] = False
     productsInCart_dict["logged"] = False
-    return render(request, "webstore/login.html")
+    return redirect("login")
 
 #Finds a specific URL based on selected category, subcategory or product and renders HTML
 def products(request):
