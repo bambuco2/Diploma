@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from webstore.models import Product, ProductInCart, ProductInCategory, SubCategory, User, Category
+from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 
 # Create your views here.
 loggedUser = None
@@ -137,22 +137,19 @@ def fillProduct(productID):
 #Handles showing cart.html and adding/removing specific product to users cart
 def cart(request):
     global productsInCart_dict
+    productsInCart_dict["CheckoutFinish"] = False
     if(loggedUser is not None):
         #User adds or remove from shopping cart
         if request.method == "POST":
-            if(loggedUser is not None and request.POST["productID"] is not None):
+            if("productID" in request.POST):
                 if("Remove" in request.POST):
                     removeProductFromCart(loggedUser.userID, request.POST["productID"])
                 else:
                     addProductToCart(loggedUser.userID, request.POST["productID"])
-            else:
-                raise Exception("User and product not found!")
-        #User wants to see shopping cart, load products
-        else:
-            productsInCart_dict["product"] = []
-            for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
-                productsInCart_dict["product"].append(productInCart)
-        fillCart()
+            elif("Checkout" in request.POST):
+                if(checkoutCart(loggedUser.userID)):
+                    productsInCart_dict["CheckoutFinish"] = True
+        fillCart(loggedUser.userID)
         return render(request, "webstore/cart.html", productsInCart_dict)
     else:
         return render(request, "webstore/login.html")
@@ -164,11 +161,13 @@ def isProductInCart(userID, productID):
     return False
 
 #Fills productsInCart_dict with products in a users cart
-def fillCart():
+def fillCart(userID):
     global productsInCart_dict
     productsInCart_dict["product"] = []
-    for productInCart in ProductInCart.objects.filter(cartID_id = loggedUser.userID):
+    productsInCart_dict["size"] = 0
+    for productInCart in ProductInCart.objects.filter(cartID_id = userID):
         productsInCart_dict["product"].append(productInCart)
+        productsInCart_dict["size"]+=1
     return True
 
 #Removes product from shopping cart
@@ -188,4 +187,12 @@ def addProductToCart(userID, productID):
     else:
         product = ProductInCart.objects.filter(cartID_id = userID, productID_id = productID)
         product.update(quantity=product[0].quantity+1)
+    return True
+
+#Handles checkout logic, writes into purchase history DB table
+def checkoutCart(userID):
+    for product in ProductInCart.objects.filter(cartID_id = userID):
+        purchase = PurchaseHistory(quantity=product.quantity, cartID_id=userID, productID_id=product.productID_id)
+        purchase.save()
+        removeProductFromCart(userID, product.productID_id)
     return True
