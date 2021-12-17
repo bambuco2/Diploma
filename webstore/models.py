@@ -72,8 +72,16 @@ class ProductInCart(models.Model):
 class PurchaseHistory(models.Model):
     cartID = models.ForeignKey(Cart, on_delete=models.CASCADE)
     productID = models.ForeignKey(Product, on_delete=models.CASCADE)
-
+    UniqueConstraint(fields=[cartID, productID], name='unique_purchase_history')
     quantity = models.IntegerField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class Tag(models.Model):
+    tagID = models.BigAutoField(primary_key=True, unique=True)
+
+    tag = models.CharField(max_length=300, unique=True)
 
     def __str__(self) -> str:
         return super().__str__()
