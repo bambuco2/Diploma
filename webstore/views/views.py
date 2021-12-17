@@ -92,12 +92,14 @@ def logout(request):
 #Finds a specific URL based on selected category, subcategory or product and renders HTML
 def products(request):
     if("subcategory" in request.GET.keys()):
-        fillProducts(request)
+        fillProducts(request.GET['subcategory'])
         return render(request, "webstore/subcategory.html", products_dict)
     elif("product" in request.GET.keys()):
         fillProduct(request.GET["product"])
         return render(request, "webstore/product.html", product_dict)
     else:
+        categoryID = findCategoryID(request.path.replace('/', ''))
+        recommendProduct(5, categoryID, None)
         if(request.path == "/household-appliances/"):
             return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
         elif(request.path == "/fashion/"):
@@ -111,19 +113,39 @@ def products(request):
         return render(request, "webstore/categories/products.html", subCategories_dict)
 
 #Fills products_dict with all products belonging in a specific subcategory
-def fillProducts(request):
+def fillProducts(subCategoryName):
     global products_dict
     products_dict["product"] = []
     subcategoryID = None
-    for subcategory in SubCategory.objects.filter():
-        if(subcategory.urlName == request.GET['subcategory']):
-            subcategoryID = subcategory.subCategoryID
-            break
+    subcategoryID = findSubcategoryID(subCategoryName)
     if(subcategoryID is None):
         raise Exception("subcategory not found!")
     for productInCategory in ProductInCategory.objects.filter():
         if(productInCategory.subCategoryID_id == subcategoryID):
             products_dict["product"].append(Product.objects.filter(productID = productInCategory.productID_id)[0])
+    recommendProduct(5, None, subcategoryID)
+
+#Finds and returns ID of subcategory
+def findSubcategoryID(subcategoryName):
+    subCategoryID = None
+    for subcategory in SubCategory.objects.filter():
+        if(subcategory.urlName == subcategoryName):
+            subCategoryID = subcategory.subCategoryID
+            break
+    return subCategoryID
+
+def findSubcategoryIDWithProductID(productID):
+    subcategoryID = ProductInCategory.objects.filter(productID_id = productID)[0].subCategoryID_id
+    return subcategoryID
+
+#Finds and returns ID of category
+def findCategoryID(categoryName):
+    categoryID = None
+    for category in Category.objects.filter():
+        if(category.urlName == categoryName):
+            categoryID = category.categoryID
+            break
+    return categoryID
 
 #Fills product_dict with a specific product
 def fillProduct(productID):
@@ -133,6 +155,8 @@ def fillProduct(productID):
         product_dict["product"] = product[0]
     else:
         product_dict["product"] = None
+    subCategoryID = findSubcategoryIDWithProductID(productID)
+    recommendProduct(5, None, subCategoryID)
 
 #Handles showing cart.html and adding/removing specific product to users cart
 def cart(request):
@@ -195,4 +219,30 @@ def checkoutCart(userID):
         purchase = PurchaseHistory(quantity=product.quantity, cartID_id=userID, productID_id=product.productID_id)
         purchase.save()
         removeProductFromCart(userID, product.productID_id)
+    return True
+
+#Uses the specific algorithm to recommend K-number of products and fills products_dict, product_dict
+def recommendProduct(k, categoryID, subCategoryID):
+    global products_dict
+    global product_dict
+    products_dict["recommended"] = []
+    product_dict["recommended"] = []
+    subCategories_dict["recommended"] = []
+    count = 0
+    #call algorith that returns a list of recommended products
+    if(subCategoryID is not None):
+        for prod in Product.objects.filter():
+            products_dict["recommended"].append(prod)
+            product_dict["recommended"].append(prod)
+            count+=1
+            if(count == k):
+                break
+    elif(categoryID is not None):
+        for prod in Product.objects.filter():
+            subCategories_dict["recommended"].append(prod)
+            count+=1
+            if(count == k):
+                break
+    else:
+        return False
     return True
