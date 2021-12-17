@@ -14,5 +14,6 @@
 {% for subCategory in yard %}
     <div><a href=?subcategory={{subCategory.urlName}}>{{subCategory.name}}</a></div>
 {% endfor %}
+{% include "webstore/recommended.html" %}
 {% include "webstore/footer.html" %}
 {% endblock %}
