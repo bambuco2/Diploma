@@ -9,9 +9,24 @@
 
 <body>
 <div class="navbar">
-    <a href="{% url 'home' %}" class="navbar-brand">Home</a>
-    <a href="{% url 'cart' %}" class="navbar-item">Shopping Cart</a>
-    <a href="{% url 'logout' %}" class="navbar-item">Logout</a>
+    <div style="float: left; overflow: hidden; margin-right: 5%;">
+        <a href="{% url 'home' %}" class="navbar-brand">Home</a>
+        <a href="{% url 'cart' %}" class="navbar-item">Shopping Cart</a>
+        <a href="{% url 'logout' %}" class="navbar-item">Logout</a>
+    </div>
+    <div>
+        <form>
+            <label for="algorithm">Choose an algorithm:</label>
+            <select name="algorithm" id="algorithm">
+            <option value="popular">Most popular</option>
+            <option value="user">User based</option>
+            <option value="itemToItem">Product based</option>
+            <option value="complimentary">Complimentary products</option>
+            <option value="similar">Complimentary of similar products</option>
+            <option value="deepRecs">Deep recs</option>
+            </select>
+        </form>
+    </div>
 </div>
 
 <div class="body-content">
