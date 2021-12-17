@@ -85,3 +85,11 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return super().__str__()
+
+class ProductWithTag(models.Model):
+    tagID = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    UniqueConstraint(fields=[tagID, productID], name='unique_product_tag')
+
+    def __str__(self) -> str:
+        return super().__str__()
