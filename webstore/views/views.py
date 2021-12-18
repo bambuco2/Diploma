@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
+from webstore.algorithm.mostPopular import MostPopular
 
 # Create your views here.
 loggedUser = None
@@ -99,7 +100,7 @@ def products(request):
         return render(request, "webstore/product.html", product_dict)
     else:
         categoryID = findCategoryID(request.path.replace('/', ''))
-        recommendProduct(5, categoryID, None)
+        recommendProduct(3, categoryID, None)
         if(request.path == "/household-appliances/"):
             return render(request, "webstore/categories/household-appliances.html",subCategories_dict)
         elif(request.path == "/fashion/"):
@@ -123,7 +124,7 @@ def fillProducts(subCategoryName):
     for productInCategory in ProductInCategory.objects.filter():
         if(productInCategory.subCategoryID_id == subcategoryID):
             products_dict["product"].append(Product.objects.filter(productID = productInCategory.productID_id)[0])
-    recommendProduct(5, None, subcategoryID)
+    recommendProduct(3, None, subcategoryID)
 
 #Finds and returns ID of subcategory
 def findSubcategoryID(subcategoryName):
@@ -156,7 +157,7 @@ def fillProduct(productID):
     else:
         product_dict["product"] = None
     subCategoryID = findSubcategoryIDWithProductID(productID)
-    recommendProduct(5, None, subCategoryID)
+    recommendProduct(3, None, subCategoryID)
 
 #Handles showing cart.html and adding/removing specific product to users cart
 def cart(request):
@@ -228,21 +229,17 @@ def recommendProduct(k, categoryID, subCategoryID):
     products_dict["recommended"] = []
     product_dict["recommended"] = []
     subCategories_dict["recommended"] = []
-    count = 0
-    #call algorith that returns a list of recommended products
+
+    algorithm = MostPopular(k, categoryID, subCategoryID)
+    productList = algorithm.calculate()
+
     if(subCategoryID is not None):
-        for prod in Product.objects.filter():
+        for prod in productList:
             products_dict["recommended"].append(prod)
             product_dict["recommended"].append(prod)
-            count+=1
-            if(count == k):
-                break
     elif(categoryID is not None):
-        for prod in Product.objects.filter():
+        for prod in productList:
             subCategories_dict["recommended"].append(prod)
-            count+=1
-            if(count == k):
-                break
     else:
         return False
     return True

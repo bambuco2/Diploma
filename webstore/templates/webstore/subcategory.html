@@ -10,6 +10,7 @@
 {% endif %}
 {% endblock %}
 {% block content %}
+{% include "webstore/recommended.html" %}
 <div>All the products in this selected category</div>
 <div style="overflow: hidden;">
 {% for prod in product %}
@@ -24,6 +25,5 @@
     <br>
 {% endfor %}
 </div>
-{% include "webstore/recommended.html" %}
 {% include "webstore/footer.html" %}
 {% endblock %}
