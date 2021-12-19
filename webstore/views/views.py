@@ -1,3 +1,4 @@
+from typing import Match
 from django.shortcuts import redirect, render
 from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
@@ -23,6 +24,12 @@ products_dict = {}
 productsInCart_dict = {}
 product_dict = {}
 login_dict = {}
+categories_dict["algorith"] = 0
+subCategories_dict["algorith"] = 0
+products_dict["algorith"] = 0
+product_dict["algorith"] = 0
+login_dict["algorith"] = 0
+productsInCart_dict["algorith"] = 0
 
 #Create subcategory dictionary with category and subcategory info
 for category in Category.objects.filter():
@@ -230,7 +237,7 @@ def recommendProduct(k, categoryID, subCategoryID):
     product_dict["recommended"] = []
     subCategories_dict["recommended"] = []
 
-    algorithm = MostPopular(k, categoryID, subCategoryID)
+    algorithm = selectAlgorithm(k, categoryID, subCategoryID)
     productList = algorithm.calculate()
 
     if(subCategoryID is not None):
@@ -243,3 +250,63 @@ def recommendProduct(k, categoryID, subCategoryID):
     else:
         return False
     return True
+
+#Selects and returns the right algorithm object
+def selectAlgorithm(k, categoryID, subCategoryID):
+    if(products_dict["algorith"] == 0):
+        algorithm = MostPopular(k, categoryID, subCategoryID)
+    else:
+        algorithm = MostPopular(k, categoryID, subCategoryID)
+    return algorithm
+
+#Handles algorithm selection UI and logic
+def algorithm(request):
+    global categories_dict
+    global subCategories_dict
+    global products_dict
+    global product_dict
+    global login_dict
+    global productsInCart_dict
+    if(request.POST['algorithm'] == "popular"):
+        categories_dict["algorith"] = 0
+        subCategories_dict["algorith"] = 0
+        products_dict["algorith"] = 0
+        product_dict["algorith"] = 0
+        login_dict["algorith"] = 0
+        productsInCart_dict["algorith"] = 0
+    elif(request.POST['algorithm'] == "user"):
+        categories_dict["algorith"] = 1
+        subCategories_dict["algorith"] = 1
+        products_dict["algorith"] = 1
+        product_dict["algorith"] = 1
+        login_dict["algorith"] = 1
+        productsInCart_dict["algorith"] = 1
+    elif(request.POST['algorithm'] == "itemToItem"):
+        categories_dict["algorith"] = 2
+        subCategories_dict["algorith"] = 2
+        products_dict["algorith"] = 2
+        product_dict["algorith"] = 2
+        login_dict["algorith"] = 2
+        productsInCart_dict["algorith"] = 2
+    elif(request.POST['algorithm'] == "complimentary"):
+        categories_dict["algorith"] = 3
+        subCategories_dict["algorith"] = 3
+        products_dict["algorith"] = 3
+        product_dict["algorith"] = 3
+        login_dict["algorith"] = 3
+        productsInCart_dict["algorith"] = 3
+    elif(request.POST['algorithm'] == "similar"):
+        categories_dict["algorith"] = 4
+        subCategories_dict["algorith"] = 4
+        products_dict["algorith"] = 4
+        product_dict["algorith"] = 4
+        login_dict["algorith"] = 4
+        productsInCart_dict["algorith"] = 4
+    elif(request.POST['algorithm'] == "deepRecs"):
+        categories_dict["algorith"] = 5
+        subCategories_dict["algorith"] = 5
+        products_dict["algorith"] = 5
+        product_dict["algorith"] = 5
+        login_dict["algorith"] = 5
+        productsInCart_dict["algorith"] = 5
+    return redirect(request.META['HTTP_REFERER'])

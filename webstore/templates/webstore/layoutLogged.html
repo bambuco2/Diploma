@@ -15,16 +15,18 @@
         <a href="{% url 'logout' %}" class="navbar-item">Logout</a>
     </div>
     <div>
-        <form>
+        <form method="post" action="/algorithm/">
+            {% csrf_token %}
             <label for="algorithm">Choose an algorithm:</label>
             <select name="algorithm" id="algorithm">
-            <option value="popular">Most popular</option>
-            <option value="user">User based</option>
-            <option value="itemToItem">Product based</option>
-            <option value="complimentary">Complimentary products</option>
-            <option value="similar">Complimentary of similar products</option>
-            <option value="deepRecs">Deep recs</option>
+            <option value="popular" {% if algorith == 0 %} selected {% endif %}>Most popular</option>
+            <option value="user" {% if algorith == 1 %} selected {% endif %}>User based</option>
+            <option value="itemToItem" {% if algorith == 2 %} selected {% endif %}>Product based</option>
+            <option value="complimentary" {% if algorith == 3 %} selected {% endif %}>Complimentary products</option>
+            <option value="similar" {% if algorith == 4 %} selected {% endif %}>Complimentary of similar products</option>
+            <option value="deepRecs" {% if algorith == 5 %} selected {% endif %}>Deep recs</option>
             </select>
+            <input type="submit" value="Ok">
         </form>
     </div>
 </div>
