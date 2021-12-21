@@ -243,11 +243,14 @@ def recommendProduct(k, categoryID, subCategoryID):
 
     if(subCategoryID is not None):
         for prod in productList:
-            products_dict["recommended"].append(prod)
-            product_dict["recommended"].append(prod)
+            if(prod not in products_dict["recommended"]):
+                products_dict["recommended"].append(prod)
+            if(prod not in product_dict["recommended"]):
+                product_dict["recommended"].append(prod)
     elif(categoryID is not None):
         for prod in productList:
-            subCategories_dict["recommended"].append(prod)
+            if(prod not in subCategories_dict["recommended"]):
+                subCategories_dict["recommended"].append(prod)
     else:
         return False
     return True
