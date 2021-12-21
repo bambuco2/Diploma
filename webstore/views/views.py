@@ -1,5 +1,6 @@
 from typing import Match
 from django.shortcuts import redirect, render
+from webstore.algorithm.userBasedComparison import UserBasedComparison
 from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
 
@@ -255,6 +256,8 @@ def recommendProduct(k, categoryID, subCategoryID):
 def selectAlgorithm(k, categoryID, subCategoryID):
     if(products_dict["algorith"] == 0):
         algorithm = MostPopular(k, categoryID, subCategoryID)
+    elif(products_dict["algorith"] == 1 and loggedUser is not None):
+        algorithm = UserBasedComparison(k, categoryID, subCategoryID, loggedUser)
     else:
         algorithm = MostPopular(k, categoryID, subCategoryID)
     return algorithm
