@@ -93,3 +93,13 @@ class ProductWithTag(models.Model):
 
     def __str__(self) -> str:
         return super().__str__()
+
+class UserRatedProduct(models.Model):
+    userID = models.ForeignKey(User, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    UniqueConstraint(fields=[userID, productID], name='unique_product_user_rate')
+
+    rating = models.IntegerField()
+
+    def __str__(self) -> str:
+        return super().__str__()
