@@ -1,11 +1,13 @@
 from typing import Match
 from django.shortcuts import redirect, render
+from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
 from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
 
 # Create your views here.
 loggedUser = None
+selectedProduct = None
 class LoggedUser:
     logged = False
     def __init__(self, userID, userName, password, name, surname):
@@ -100,6 +102,8 @@ def logout(request):
 
 #Finds a specific URL based on selected category, subcategory or product and renders HTML
 def products(request):
+    global selectedProduct
+    selectedProduct = None
     if("subcategory" in request.GET.keys()):
         fillProducts(request.GET['subcategory'])
         return render(request, "webstore/subcategory.html", products_dict)
@@ -159,11 +163,15 @@ def findCategoryID(categoryName):
 #Fills product_dict with a specific product
 def fillProduct(productID):
     global product_dict
+    global selectedProduct
     product = Product.objects.filter(productID = productID)
     if(product):
         product_dict["product"] = product[0]
+        product_dict["selectedProduct"] = product[0]
+        selectedProduct = product[0]
     else:
         product_dict["product"] = None
+        product_dict["selectedProduct"] = None
     subCategoryID = findSubcategoryIDWithProductID(productID)
     recommendProduct(3, None, subCategoryID)
 
@@ -261,6 +269,8 @@ def selectAlgorithm(k, categoryID, subCategoryID):
         algorithm = MostPopular(k, categoryID, subCategoryID)
     elif(products_dict["algorith"] == 1 and loggedUser is not None):
         algorithm = UserBasedComparison(k, categoryID, subCategoryID, loggedUser)
+    elif(products_dict["algorith"] == 2 and selectedProduct is not None):
+        algorithm = ProductBasedComparison(k, categoryID, subCategoryID, selectedProduct)
     else:
         algorithm = MostPopular(k, categoryID, subCategoryID)
     return algorithm
