@@ -2,7 +2,7 @@ from typing import Match
 from django.shortcuts import redirect, render
 from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
-from webstore.models import Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
+from webstore.models import JointProductPurchase, Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
 
 # Create your views here.
@@ -230,12 +230,31 @@ def addProductToCart(userID, productID):
         product.update(quantity=product[0].quantity+1)
     return True
 
+#Adds/alters jointProductPurchase table
+def handleJointPurchase(jointPurchaseProducts):
+    count=0
+    primaryProductID = None
+    jointProductPurchaseString = ""
+    for productID in jointPurchaseProducts:
+        if(count == 0):
+            primaryProductID = productID
+        else:
+            jointProductPurchaseString = jointProductPurchaseString + str(productID) + ","
+        count+=1
+    purchase = JointProductPurchase(productID_id=primaryProductID, relatedProducts=jointProductPurchaseString)
+    purchase.save()
+    return None
+
 #Handles checkout logic, writes into purchase history DB table
 def checkoutCart(userID):
+    jointPurchaseProducts = []
     for product in ProductInCart.objects.filter(cartID_id = userID):
         purchase = PurchaseHistory(quantity=product.quantity, cartID_id=userID, productID_id=product.productID_id)
+        jointPurchaseProducts.append(product.productID_id)
         purchase.save()
         removeProductFromCart(userID, product.productID_id)
+    if(len(jointPurchaseProducts)>1):
+        handleJointPurchase(jointPurchaseProducts)
     return True
 
 #Uses the specific algorithm to recommend K-number of products and fills products_dict, product_dict
