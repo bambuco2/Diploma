@@ -103,3 +103,10 @@ class UserRatedProduct(models.Model):
 
     def __str__(self) -> str:
         return super().__str__()
+
+class JointProductPurchase(models.Model):
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    relatedProducts = models.TextField()
+
+    def __str__(self) -> str:
+        return super().__str__()
