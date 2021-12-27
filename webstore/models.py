@@ -72,8 +72,41 @@ class ProductInCart(models.Model):
 class PurchaseHistory(models.Model):
     cartID = models.ForeignKey(Cart, on_delete=models.CASCADE)
     productID = models.ForeignKey(Product, on_delete=models.CASCADE)
-
+    UniqueConstraint(fields=[cartID, productID], name='unique_purchase_history')
     quantity = models.IntegerField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class Tag(models.Model):
+    tagID = models.BigAutoField(primary_key=True, unique=True)
+
+    tag = models.CharField(max_length=300, unique=True)
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class ProductWithTag(models.Model):
+    tagID = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    UniqueConstraint(fields=[tagID, productID], name='unique_product_tag')
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class UserRatedProduct(models.Model):
+    userID = models.ForeignKey(User, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    UniqueConstraint(fields=[userID, productID], name='unique_product_user_rate')
+
+    rating = models.IntegerField()
+
+    def __str__(self) -> str:
+        return super().__str__()
+
+class JointProductPurchase(models.Model):
+    productID = models.ForeignKey(Product, on_delete=models.CASCADE)
+    relatedProducts = models.TextField()
 
     def __str__(self) -> str:
         return super().__str__()

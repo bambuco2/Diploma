@@ -1,2 +1,19 @@
-<a href="{% url 'home' %}" class="navbar-brand">Home</a>
-<a href="{% url 'login' %}" class="navbar-item">Login</a>
+<div style="float: left; overflow: hidden; margin-right: 5%;">
+    <a href="{% url 'home' %}" class="navbar-brand">Home</a>
+    <a href="{% url 'login' %}" class="navbar-item">Login</a>
+</div>
+<div>
+    <form method="post" action="/algorithm/">
+        {% csrf_token %}
+        <label for="algorithm">Choose an algorithm:</label>
+        <select name="algorithm" id="algorithm">
+        <option value="popular" {% if algorith == 0 %} selected {% endif %}>Most popular</option>
+        <option value="user" {% if algorith == 1 %} selected {% endif %}>User based</option>
+        <option value="itemToItem" {% if algorith == 2 %} selected {% endif %}>Product based</option>
+        <option value="complimentary" {% if algorith == 3 %} selected {% endif %}>Complimentary products</option>
+        <option value="similar" {% if algorith == 4 %} selected {% endif %}>Complimentary of similar products</option>
+        <option value="deepRecs" {% if algorith == 5 %} selected {% endif %}>Deep recs</option>
+        </select>
+        <input type="submit" value="Ok">
+    </form>
+</div>

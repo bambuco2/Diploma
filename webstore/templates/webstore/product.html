@@ -11,13 +11,30 @@
 {% endblock %}
 {% block content %}
 {% if product is not None %}
-    <div>{{product.name}}</div>
-    <div><img src=/static/images/{{product.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=400 height=400></div>
-    <div>{{product.description}}</div>
-    <div>{{product.price}}€</div>
-    <div>{{product.rank}}</div>
+    <div style="overflow: hidden;">
+        <div style="width: 30%; float:left;">
+            <div>{{product.name}}</div>
+            <div><img src=/static/images/{{product.productID}}.jpg onerror="this.onerror=null; this.src='/static/images/placeholder.jpg'" alt="My image" width=400 height=400></div>
+            <div>{{product.description}}</div>
+        </div>
+        <div style="width: 30%; float:left;">
+            <div>{{product.price}}€</div>
+            <div>{{product.rank}}</div>
+            <br>
+            {% if logged %}
+            <div>
+                <form method="POST" action="/cart/">
+                {% csrf_token %}
+                    <input type="hidden" id="productID" name="productID" value={{product.productID}}>
+                    <input type="submit" value="Add to cart">
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 {% else %}
     <div>All the information for this specific product</div>
 {% endif %}
+{% include "webstore/recommended.html" %}
 {% include "webstore/footer.html" %}
 {% endblock %}
