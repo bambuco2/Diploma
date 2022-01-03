@@ -1,5 +1,6 @@
 from typing import Match
 from django.shortcuts import redirect, render
+from webstore.algorithm.cmplementaryOfSimilarProducts import ComplementaryOfSimilarProducts
 from webstore.algorithm.complementaryProducts import ComplementaryProducts
 from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
@@ -296,6 +297,8 @@ def selectAlgorithm(k, categoryID, subCategoryID):
         algorithm = ProductBasedComparison(k, categoryID, subCategoryID, selectedProduct)
     elif(products_dict["algorith"] == 3 and selectedProduct is not None):
         algorithm = ComplementaryProducts(k, categoryID, subCategoryID, selectedProduct)
+    elif(products_dict["algorith"] == 4 and selectedProduct is not None):
+        algorithm = ComplementaryOfSimilarProducts(k, categoryID, subCategoryID, selectedProduct)
     else:
         algorithm = MostPopular(k, categoryID, subCategoryID)
     return algorithm
