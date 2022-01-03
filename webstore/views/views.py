@@ -1,5 +1,6 @@
 from typing import Match
 from django.shortcuts import redirect, render
+from webstore.algorithm.complementaryProducts import ComplementaryProducts
 from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
 from webstore.models import JointProductPurchase, Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
@@ -232,17 +233,20 @@ def addProductToCart(userID, productID):
 
 #Adds/alters jointProductPurchase table
 def handleJointPurchase(jointPurchaseProducts):
-    count=0
-    primaryProductID = None
-    jointProductPurchaseString = ""
-    for productID in jointPurchaseProducts:
-        if(count == 0):
-            primaryProductID = productID
+    for product in jointPurchaseProducts:
+        count=0
+        primaryProductID = product
+        jointProductPurchaseString = ""
+        for productID in jointPurchaseProducts:
+            if(productID is not primaryProductID):
+                jointProductPurchaseString = jointProductPurchaseString + str(productID) + ","
+            count+=1
+        if(JointProductPurchase.objects.filter(productID_id=primaryProductID).exists()):
+            jointProductPurchaseString = JointProductPurchase.objects.filter(productID_id=primaryProductID)[0].relatedProducts + jointProductPurchaseString
+            JointProductPurchase.objects.filter(productID_id=primaryProductID).update(relatedProducts = jointProductPurchaseString)
         else:
-            jointProductPurchaseString = jointProductPurchaseString + str(productID) + ","
-        count+=1
-    purchase = JointProductPurchase(productID_id=primaryProductID, relatedProducts=jointProductPurchaseString)
-    purchase.save()
+            purchase = JointProductPurchase(productID_id=primaryProductID, relatedProducts=jointProductPurchaseString)
+            purchase.save()
     return None
 
 #Handles checkout logic, writes into purchase history DB table
@@ -290,6 +294,8 @@ def selectAlgorithm(k, categoryID, subCategoryID):
         algorithm = UserBasedComparison(k, categoryID, subCategoryID, loggedUser)
     elif(products_dict["algorith"] == 2 and selectedProduct is not None):
         algorithm = ProductBasedComparison(k, categoryID, subCategoryID, selectedProduct)
+    elif(products_dict["algorith"] == 3 and selectedProduct is not None):
+        algorithm = ComplementaryProducts(k, categoryID, subCategoryID, selectedProduct)
     else:
         algorithm = MostPopular(k, categoryID, subCategoryID)
     return algorithm
