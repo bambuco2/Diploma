@@ -4,6 +4,7 @@ from webstore.algorithm.cmplementaryOfSimilarProducts import ComplementaryOfSimi
 from webstore.algorithm.complementaryProducts import ComplementaryProducts
 from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
+from webstore.algorithm.userItemBasedFiltering import UserItemBasedFiltering
 from webstore.models import JointProductPurchase, Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
 
@@ -299,6 +300,8 @@ def selectAlgorithm(k, categoryID, subCategoryID):
         algorithm = ComplementaryProducts(k, categoryID, subCategoryID, selectedProduct)
     elif(products_dict["algorith"] == 4 and selectedProduct is not None):
         algorithm = ComplementaryOfSimilarProducts(k, categoryID, subCategoryID, selectedProduct)
+    elif(products_dict["algorith"] == 5 and selectedProduct is not None and loggedUser is not None):
+        algorithm = UserItemBasedFiltering(k, categoryID, subCategoryID, loggedUser, selectedProduct)
     else:
         algorithm = MostPopular(k, categoryID, subCategoryID)
     return algorithm
