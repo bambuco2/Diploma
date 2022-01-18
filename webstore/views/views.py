@@ -5,7 +5,7 @@ from webstore.algorithm.complementaryProducts import ComplementaryProducts
 from webstore.algorithm.productBasedComparison import ProductBasedComparison
 from webstore.algorithm.userBasedComparison import UserBasedComparison
 from webstore.algorithm.userItemBasedFiltering import UserItemBasedFiltering
-from webstore.models import JointProductPurchase, Product, ProductInCart, ProductInCategory, PurchaseHistory, SubCategory, User, Category
+from webstore.models import JointProductPurchase, Product, ProductInCart, ProductInCategory, ProductWithTag, PurchaseHistory, SubCategory, User, Category
 from webstore.algorithm.mostPopular import MostPopular
 
 # Create your views here.
@@ -163,6 +163,9 @@ def findCategoryID(categoryName):
             break
     return categoryID
 
+def findCategoryIDWithProductID(productID):
+    return ProductInCategory.objects.filter(productID_id = productID)[0].categoryID_id
+
 #Fills product_dict with a specific product
 def fillProduct(productID):
     global product_dict
@@ -176,7 +179,8 @@ def fillProduct(productID):
         product_dict["product"] = None
         product_dict["selectedProduct"] = None
     subCategoryID = findSubcategoryIDWithProductID(productID)
-    recommendProduct(3, None, subCategoryID)
+    categoryID = findCategoryIDWithProductID(productID)
+    recommendProduct(3, categoryID, subCategoryID)
 
 #Handles showing cart.html and adding/removing specific product to users cart
 def cart(request):

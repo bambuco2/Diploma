@@ -1,4 +1,4 @@
-from webstore.models import PurchaseHistory, UserRatedProduct, Product, User, Tag, ProductWithTag
+from webstore.models import ProductInCategory, PurchaseHistory, UserRatedProduct, Product, User, Tag, ProductWithTag
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
@@ -10,20 +10,21 @@ class UserItemBasedFiltering:
         self.subCategoryID = subCategoryID
         self.loggedUser = loggedUser
         self.selectedProduct = selectedProduct
+        self.userList = []
 
 
     #Create data set for currently logged user
     def createLoggedUserDataTable(self):
-        loggedUserData = np.zeros((1,Product.objects.filter().count()))
+        loggedUserData = np.zeros((1,ProductInCategory.objects.filter(categoryID_id = self.categoryID).count()))
         
         column = 0
-        for product in Product.objects.filter():
-            if(PurchaseHistory.objects.filter(cartID_id = self.loggedUser.userID, productID_id = product.productID).exists()):
+        for product in ProductInCategory.objects.filter(categoryID_id = self.categoryID):
+            if(PurchaseHistory.objects.filter(cartID_id = self.loggedUser.userID, productID_id = product.productID_id).exists()):
                 loggedUserData[0][column] = 1
-            if(UserRatedProduct.objects.filter(userID_id = self.loggedUser.userID, productID_id = product.productID).exists()):
+            if(UserRatedProduct.objects.filter(userID_id = self.loggedUser.userID, productID_id = product.productID_id).exists()):
                 loggedUserData[0][column] = 2
-            if(PurchaseHistory.objects.filter(cartID_id = self.loggedUser.userID, productID_id = product.productID).exists() and 
-            UserRatedProduct.objects.filter(userID_id = self.loggedUser.userID, productID_id = product.productID).exists()):
+            if(PurchaseHistory.objects.filter(cartID_id = self.loggedUser.userID, productID_id = product.productID_id).exists() and 
+            UserRatedProduct.objects.filter(userID_id = self.loggedUser.userID, productID_id = product.productID_id).exists()):
                 loggedUserData[0][column] = 3
             column+=1
         return loggedUserData
@@ -31,19 +32,24 @@ class UserItemBasedFiltering:
     #Create ND array of users and which products they bought/rated
     #1-user bought the product, 2-user rated the product, 3-user bought and rated the product
     def createDataTable(self):
-        userProductData = np.zeros((User.objects.filter().count()-1,Product.objects.filter().count()))
-        row = 0
+        userList = []
         for user in User.objects.filter():
+            if(PurchaseHistory.objects.filter(cartID_id = user.userID).count()>0):
+                userList.append(user)
+        self.userList = userList
+        userProductData = np.zeros((len(userList),ProductInCategory.objects.filter(categoryID_id = self.categoryID).count()))
+        row = 0
+        for user in userList:
             if(user.userID == self.loggedUser.userID):
                 continue
             column = 0
-            for product in Product.objects.filter():
-                if(PurchaseHistory.objects.filter(cartID_id = user.userID, productID_id = product.productID).exists()):
+            for product in ProductInCategory.objects.filter(categoryID_id = self.categoryID):
+                if(PurchaseHistory.objects.filter(cartID_id = user.userID, productID_id = product.productID_id).exists()):
                     userProductData[row][column] = 1
-                if(UserRatedProduct.objects.filter(userID_id = user.userID, productID_id = product.productID).exists()):
+                if(UserRatedProduct.objects.filter(userID_id = user.userID, productID_id = product.productID_id).exists()):
                     userProductData[row][column] = 2
-                if(PurchaseHistory.objects.filter(cartID_id = user.userID, productID_id = product.productID).exists() and 
-                UserRatedProduct.objects.filter(userID_id = user.userID, productID_id = product.productID).exists()):
+                if(PurchaseHistory.objects.filter(cartID_id = user.userID, productID_id = product.productID_id).exists() and 
+                UserRatedProduct.objects.filter(userID_id = user.userID, productID_id = product.productID_id).exists()):
                     userProductData[row][column] = 3
                 column+=1
             row+=1
@@ -54,7 +60,7 @@ class UserItemBasedFiltering:
         row = 0
         currentUser = None
         currentSimilarityRatio = 0
-        for user in User.objects.filter():
+        for user in self.userList:
             if(user.userID == self.loggedUser.userID):
                 continue
             if(similarityArray[0][row] >= currentSimilarityRatio):
