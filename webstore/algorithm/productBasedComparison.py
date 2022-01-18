@@ -1,5 +1,5 @@
 from numpy.core.fromnumeric import sort
-from webstore.models import Product, Tag, ProductWithTag
+from webstore.models import Product, ProductInCategory, Tag, ProductWithTag
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
@@ -13,18 +13,14 @@ class ProductBasedComparison:
     
     #Creates data table about products
     def createDataTable(self):
-        productsDataTable = np.zeros((Product.objects.filter().count()-1,Tag.objects.filter().count()+2))
+        productsDataTable = np.zeros((ProductInCategory.objects.filter(categoryID_id = self.categoryID).count(),Tag.objects.filter().count()))
         row = 0
-        for product in Product.objects.filter():
-            if(product.productID == self.selectedProduct.productID):
+        for product in ProductInCategory.objects.filter(categoryID_id = self.categoryID):
+            if(product.productID_id == self.selectedProduct.productID):
                 continue
             column = 0
-            productsDataTable[row][column] = int(product.price)
-            column+=1
-            productsDataTable[row][column] = int(product.rank)
-            column+=1
             for tag in Tag.objects.filter():
-                if(ProductWithTag.objects.filter(productID_id = product.productID, tagID_id = tag.tagID).exists()):
+                if(ProductWithTag.objects.filter(productID_id = product.productID_id, tagID_id = tag.tagID).exists()):
                     productsDataTable[row][column] = 1
                 column+=1
             row+=1
@@ -32,12 +28,8 @@ class ProductBasedComparison:
 
     #Creates data table about selected product
     def createSelectedProductDataTable(self):
-        selectedProductDataTable = np.zeros((1,Tag.objects.filter().count()+2))
+        selectedProductDataTable = np.zeros((1,Tag.objects.filter().count()))
         column = 0
-
-        selectedProductDataTable[0][column] = int(self.selectedProduct.price)
-        selectedProductDataTable[0][column+1] = int(self.selectedProduct.rank)
-        column = 2
         for tag in Tag.objects.filter():
             if(ProductWithTag.objects.filter(productID_id = self.selectedProduct.productID, tagID_id = tag.tagID).exists()):
                 selectedProductDataTable[0][column] = 1
@@ -49,12 +41,12 @@ class ProductBasedComparison:
         column = 0
         productList = []
         sortedProductList = []
-        for product in Product.objects.filter():
-            if(product.productID == self.selectedProduct.productID):
+        for product in ProductInCategory.objects.filter(categoryID_id = self.categoryID):
+            if(product.productID_id == self.selectedProduct.productID):
                 continue
-            productList.append((product.productID, similarityArray[0][column]))
+            productList.append((product.productID_id, similarityArray[0][column]))
             column+=1
-        productList.sort(key=lambda x:x[1])
+        productList.sort(reverse=True, key=lambda x:x[1])
         for productID, productSimilarityScore in productList:
             sortedProductList.append(Product.objects.filter(productID = productID)[0])
         return sortedProductList
