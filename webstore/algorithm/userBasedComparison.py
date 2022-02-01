@@ -9,6 +9,7 @@ class UserBasedComparison:
         self.categoryID = categoryID
         self.subCategoryID = subCategoryID
         self.loggedUser = loggedUser
+        self.userList = []
     
     #Create data set for currently logged user
     def createLoggedUserDataTable(self):
@@ -29,9 +30,14 @@ class UserBasedComparison:
     #Create ND array of users and which products they bought/rated
     #1-user bought the product, 2-user rated the product, 3-user bought and rated the product
     def createDataTable(self):
-        userProductData = np.zeros((User.objects.filter().count()-1,Product.objects.filter().count()))
-        row = 0
+        userList = []
         for user in User.objects.filter():
+            if(PurchaseHistory.objects.filter(cartID_id = user.userID).count()>0):
+                userList.append(user)
+        self.userList = userList
+        userProductData = np.zeros((len(userList),Product.objects.filter().count()))
+        row = 0
+        for user in userList:
             if(user.userID == self.loggedUser.userID):
                 continue
             column = 0
@@ -52,7 +58,7 @@ class UserBasedComparison:
         row = 0
         currentUser = None
         currentSimilarityRatio = 0
-        for user in User.objects.filter():
+        for user in self.userList:
             if(user.userID == self.loggedUser.userID):
                 continue
             if(similarityArray[0][row] >= currentSimilarityRatio):
